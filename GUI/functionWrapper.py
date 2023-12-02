@@ -2,24 +2,16 @@ import subprocess
 
 # Define a dictionary of major cities/locations and their image paths
 image_paths = {
-    "New York City, USA": 'Images/NYC.jpeg',
-    "San Francisco, USA": 'Images/SanFran.jpeg',
-    "Norman, Oklahoma, USA": 'Images/OU.jpeg',
-    "Los Angeles, USA": 'Images/LA.jpeg',
-    "Chicago, USA": 'Images/Chicago.jpeg',
-        
-    "Beijing, China": 'Images/Bei.jpeg',
-    "Shanghai, China": 'Images/Sha.jpeg',
-        
-    "London, United Kingdom": 'Images/London.jpeg',
-    "Tokyo, Japan": 'Images/Tokyo.jpeg',
-    "São Paulo, Brazil": 'Images/Sao.jpeg',
-    "Istanbul, Turkey": 'Images/Istan.jpeg',
-    "Dubai, United Arab Emirates": 'Images/Dubai.jpeg',
-    "Singapore, Singapore": 'Images/Sing.jpeg',
-    "Mexico City, Mexico": 'Images/MX.jpeg',
-    "Paris, France": 'Images/Pari.jpeg',
-    "Sydney, Australia": 'Images/Syn.jpeg'
+    "New York City, USA": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/NYC.jpeg',
+    "San Francisco, USA": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/SanFran.jpeg',
+    "Norman, Oklahoma, USA": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/OU.jpeg',
+    "Los Angeles, USA": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/LA.jpeg',
+    "Chicago, USA": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/Chicago.jpeg',    
+    "London, United Kingdom": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/London.jpeg',
+    "Tokyo, Japan": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/Tokyo.jpeg',
+    "Dubai, United Arab Emirates": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/Dubai.jpeg',
+    "Paris, France": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/Pari.jpeg',
+    "Sydney, Australia": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/Syn.jpeg'
 }
 
 # Function to open an image based on the selected location
