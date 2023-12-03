@@ -14,14 +14,16 @@ deskFile = open(filePath, "wb")
 
 # Read and write data until the transfer is complete
 while True:
-    data = serial_connection.read(129)
+    #129 bits for full data, 5 for just location flag
+    
+    data = serial_connection.read(3)
     if data == b"EOF":
         break
     print(data)
-    deskFile.seek(0)
+    deskFile.seek(0) #Overwrite the loction flag
     deskFile.write(data)
     
-    time.sleep(10)
+    time.sleep(2)
     
 
 # Close the files and serial connection
