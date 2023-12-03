@@ -72,6 +72,27 @@ def read_gps_data(file_path):
 
     return gps_data
 
-def display_gps_data(gps_data, result_label):
-    result_text = "GPS Data:\n" + "\n".join([f"{key}: {value}" for key, value in gps_data.items()])
-    result_label.config(text=result_text)
+def readFile(filePath):
+    gps_data = {}  # Initialize an empty dictionary to store the data
+    locationFlag = ''
+    file = open(filePath, 'r')
+    char = ''
+    while 1:
+        
+        # read by character
+        char = file.read(1)          
+        if not char: 
+            break
+            
+        print(char)
+    
+        
+    file.close()
+    return char
+
+# def display_gps_data(gps_data, result_label):
+#     result_text = "GPS Data:\n" + "\n".join([f"{key}: {value}" for key, value in gps_data.items()])
+#     result_label.config(text=result_text)
+
+def display_gps_data(gps_data):
+    result_text = gps_data

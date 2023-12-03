@@ -4,6 +4,7 @@ import math
 
 # Import the functions module
 import functionWrapper as functions
+import serialCon as piCon 
 
 # Define season colors
 SEASON_COLORS = {
@@ -38,6 +39,9 @@ notebook.add(gpsDataTab, text='GPS Data')
 
 # Common components for both tabs
 location_choices = list(functions.image_paths.keys())
+
+def communicateBtn():
+    piCon.communicate()
 
 # Function to animate the Date Line
 def animate_date_line(angle, increment):
@@ -120,19 +124,23 @@ canvas = tk.Canvas(seasonLocationTab, width=300, height=300)
 canvas.pack()
 
 # UI components for the GPS Data tab
-display_gps_button = tk.Button(gpsDataTab, text="Display GPS Data", command=lambda: functions.display_gps_data(gps_data, result_label))
+display_gps_button = tk.Button(gpsDataTab, text="Display GPS Data", command=lambda: functions.display_gps_data(gps_data))
 display_gps_button.pack()
 result_label = tk.Label(gpsDataTab, text='')
 result_label.pack()
 
 # Load GPS data from the file
-file_path = "output.txt"
-gps_data = functions.read_gps_data(file_path)
+# file_path = "output.txt"
+# gps_data = functions.read_gps_data(file_path)
+
+filePath = "/home/capstone/Desktop/test.txt"
+gps_data = functions.readFile(filePath)
+print(gps_data)
 
 gps_location_label = tk.Label(gpsDataTab, text='Select a Major City:')
 gps_location_label.pack()
 gps_location_var = tk.StringVar()
-gps_location_var.set(gps_data.get("Closest City"))
+# gps_location_var.set(gps_data.get("Closest City"))
 gps_location_menu = tk.OptionMenu(gpsDataTab, gps_location_var, *location_choices)
 gps_location_menu.pack()
 
@@ -142,6 +150,11 @@ open_gps_image_button = tk.Button(
     command=lambda: (functions.open_image(gps_location_var.get(), result_label))
 )
 open_gps_image_button.pack()
+
+comBtn = tk.Button(seasonLocationTab, text='Communicate with Pico', 
+    command=communicateBtn)
+
+comBtn.pack()
 
 # Run the Tkinter main loop
 root.mainloop()
