@@ -86,6 +86,11 @@ def calculate_distance(coord1, coord2):
 def find_closest_city(latitude, longitude, cities):
     global locFlag
     
+    if (latitude == 0.0) and (longitude == 0.0):
+        locFlag = '!'
+        closest_city = None
+        return closest_city
+    
     closest_city = None
     closest_distance = float("inf")
 
@@ -102,6 +107,10 @@ def find_closest_city(latitude, longitude, cities):
 
 # Function to find the closest landmark
 def find_closest_landmark(latitude, longitude, landmarks):
+    if (latitude == 0.0) and (longitude == 0.0):
+        closest_landmark = None
+        return closest_landmark
+    
     closest_landmark = None
     closest_distance_landmark = float("inf")
 
