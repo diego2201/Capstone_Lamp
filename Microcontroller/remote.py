@@ -42,7 +42,7 @@ aioble.Characteristic(device_info, bluetooth.UUID(BLE_VERSION_ID), read=True, in
 
 remote_service = aioble.Service(_GENERIC)
 
-button_characteristic = aioble.Characteristic(
+locationData = aioble.Characteristic(
     remote_service, _BUTTON_UUID, read=True, notify=True
 )
 
@@ -59,6 +59,10 @@ async def remote_task():
             print('not connected')
             await asyncio.sleep_ms(1000)
             continue
+        if connected:
+            print(f"BT connected: {connection}")
+            locationData.write(b"a")
+            locationData.notify(connection, b"a")
         else:
             print('connected')
         await asyncio.sleep_ms(10)
@@ -105,3 +109,4 @@ async def main():
     await asyncio.gather(*tasks)
 
 asyncio.run(main())
+

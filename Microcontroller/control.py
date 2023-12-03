@@ -14,12 +14,12 @@ alive = False
 async def find_remote():
     async with aioble.scan(5000, interval_us=30000, window_us=30000, active=True) as scanner:
         async for result in scanner:
-            if result.name() == "BasePi2":
-                print("Found BasePi2")
+            if result.name() == "BasePi":
+                print("Found BasePi")
                 for item in result.services():
                     print(item)
                 if _GENERIC in result.services():
-                    print("Found Robot Remote Service")
+                    print("Found Remote Service")
                     return result.device
     return None
 
@@ -37,6 +37,12 @@ async def blink_task():
             blink = 250
         await asyncio.sleep_ms(blink)
     print('blink task stopped')
+
+def selectLocation(command):
+    if command == b'a':
+        print("Correct value")
+    else:
+        print("Not correct")
 
 async def peripheral_task():
     print ("peripheral task started")
@@ -85,6 +91,8 @@ async def peripheral_task():
                 await control_characteristic.subscribe(notify=True)
                 while True:
                     command = await control_characteristic.notified()
+                    selectLocation(command)
+                    print(command)
 
             except Exception as e:
                 print(f"something went wrong: {e}")
