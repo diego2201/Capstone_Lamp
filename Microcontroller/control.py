@@ -55,7 +55,7 @@ def selectLocation(command):
         print("Dubai, United Arab Emirates")
     elif command == b'i':
         print("Paris, France")
-    elif command == b'j'
+    elif command == b'j':
         print("Sydney, Australia")
     else:
         print("No GPS data found")
