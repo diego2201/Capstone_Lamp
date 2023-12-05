@@ -1,7 +1,7 @@
 import subprocess
 
 # Define a dictionary of major cities/locations and their image paths
-image_paths = {
+imagePath = {
     "New York City, USA": 'Images/NYC.jpeg',
     "San Francisco, USA": 'Images/SanFran.jpeg',
     "Norman, Oklahoma, USA": 'Images/OU.jpeg',
@@ -22,64 +22,39 @@ image_paths = {
     "Sydney, Australia": 'Images/Syn.jpeg'
 }
 
+locationDict = {
+    'a': "New York City, USA",
+    'b': "San Francisco, USA",
+    'c': "Norman, Oklahoma, USA",
+    'd': "Los Angeles, USA",
+    'e': "Chicago, USA",
+    'f': "London, United Kingdom",
+    'g': "Tokyo, Japan",
+    'h': "Dubai, United Arab Emirates",
+    'i': "Paris, France",
+    'j': "Sydney, Australia",
+    'k': 'University of Oklhoma, USA',
+    '!': 'GPS Error'
+}
+
 # Function to open an image based on the selected location
-def open_image(selected_location, result_label):
+def openImage(location, result):
     
     # Get the image path for the selected location
-    image_path = image_paths.get(selected_location)
+    path = imagePath.get(location)
 
     # Display the result label
-    if image_path:
+    if path:
         # Open the image in the terminal (change the command as needed)
-        subprocess.run(['open', image_path])
+        subprocess.run(['open', path])
     else:
-        result_label.config(text='Image not found.')
+        result.config(text='Image not found.')
 
-def read_gps_data(file_path):
-    gps_data = {}  # Initialize an empty dictionary to store the data
+def readFile(filePath):
+    with open(filePath, 'rb') as file:
+        data = file.read().decode('utf-8', errors='ignore')
+        # Get the string corresponding to the character from the dictionary
+    parsedData = ''.join(char for char in data if char.isprintable())
+    print(locationDict.get(parsedData))
+    return locationDict.get(parsedData)
 
-    try:
-        with open(file_path, 'r') as file:
-            current_key = None
-            for line in file:
-                line = line.strip()
-                if line:
-                    if line.startswith("Latitude: "):
-                        current_key = "Latitude"
-                        gps_data[current_key] = float(line.split(": ")[1])
-
-                    elif line.startswith("Longitude: "):
-                        current_key = "Longitude"
-                        gps_data[current_key] = float(line.split(": ")[1])
-
-                    elif line.startswith("Date: "):
-                        current_key = "Date"
-                        gps_data[current_key] = line.split(": ")[1]
-
-                    elif line.startswith("Time: "):
-                        current_key = "Time"
-                        gps_data[current_key] = line.split(": ")[1]
-
-                    elif line.startswith("Closest City: "):
-                        current_key = "Closest City"
-                        gps_data[current_key] = line.split(": ")[1]
-
-                    elif line.startswith("Closest Landmark: "):
-                        current_key = "Closest Landmark"
-                        gps_data[current_key] = line.split(": ")[1]
-
-                    else:
-                        # If the line doesn't match any known format, continue with the current key
-                        if current_key:
-                            gps_data[current_key] += " " + line
-
-    except FileNotFoundError:
-        print(f"File not found: {file_path}")
-    except Exception as e:
-        print(f"An error occurred while reading the file: {str(e)}")
-
-    return gps_data
-
-def display_gps_data(gps_data, result_label):
-    result_text = "GPS Data:\n" + "\n".join([f"{key}: {value}" for key, value in gps_data.items()])
-    result_label.config(text=result_text)

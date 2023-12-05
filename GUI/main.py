@@ -6,19 +6,51 @@ import math
 import functionWrapper as functions
 
 # Define season colors
-SEASON_COLORS = {
+NORTH_COLORS = {
     "Spring": "green",
     "Summer": "yellow",
     "Autumn": "orange",
     "Winter": "white",
 }
 
-OPPOSITE_SEASON = {
+SOUTH_COLORS = {
     "Spring": "Autumn",
     "Summer": "Winter",
     "Autumn": "Spring",
     "Winter": "Summer",
 }
+
+# Function to render a simple globe based on the selected season
+def drawGlobe(season):
+    canvas.delete("globe")
+    radius = 100
+    centerX, centerY = 150, 150
+    northHemi = radius
+    southHemi = radius
+
+    canvas.create_arc(
+        centerX - northHemi,
+        centerY - northHemi,
+        centerX + northHemi,
+        centerY + northHemi,
+        start=0,
+        extent=180,
+        outline="black",
+        fill=NORTH_COLORS.get(season, "white"),
+        tags="globe",
+    )
+
+    canvas.create_arc(
+        centerX - southHemi,
+        centerY - southHemi,
+        centerX + southHemi,
+        centerY + southHemi,
+        start=0,
+        extent=-180,
+        outline="black",
+        fill=NORTH_COLORS.get(SOUTH_COLORS.get(season), "white"),
+        tags="globe",
+    )
 
 # Create the main window
 root = tk.Tk()
@@ -29,119 +61,70 @@ notebook = ttk.Notebook(root)
 notebook.pack(fill='both', expand=True)
 
 # Create a tab for the Season and Location selector
-seasonLocationTab = ttk.Frame(notebook)
-notebook.add(seasonLocationTab, text='User Input')
+userTab = ttk.Frame(notebook)
+notebook.add(userTab, text='User Input')
 
 # Create a tab for the GPS data
 gpsDataTab = ttk.Frame(notebook)
 notebook.add(gpsDataTab, text='GPS Data')
 
 # Common components for both tabs
-location_choices = list(functions.image_paths.keys())
-
-# Function to animate the Date Line
-def animate_date_line(angle, increment):
-    #canvas.delete("date_line")
-    draw_date_line(angle)
-    angle += math.radians(increment)
-    if angle >= 360:
-        angle = 180  # Reset the angle to restart the animation
-    #canvas.after(10, animate_date_line, angle, increment)
-
-# Function to draw the Date Line
-def draw_date_line(angle):
-    radius = 100
-    center_x, center_y = 150, 150
-    start_x = center_x + radius * math.cos(angle)
-    start_y = center_y + radius * math.sin(angle)
-    end_x = center_x + radius * math.cos(-angle)
-    end_y = center_y + radius * math.sin(-angle)
-    canvas.create_line(start_x, start_y, end_x, end_y, fill="red", width=2, tags="date_line")
-
-# Function to render a simple globe based on the selected season
-def render_globe(season):
-    canvas.delete("globe")
-    radius = 100
-    center_x, center_y = 150, 150
-    radius_northern = radius
-    radius_southern = radius
-
-    canvas.create_arc(
-        center_x - radius_northern,
-        center_y - radius_northern,
-        center_x + radius_northern,
-        center_y + radius_northern,
-        start=0,
-        extent=180,
-        outline="black",
-        fill=SEASON_COLORS.get(season, "white"),
-        tags="globe",
-    )
-
-    canvas.create_arc(
-        center_x - radius_southern,
-        center_y - radius_southern,
-        center_x + radius_southern,
-        center_y + radius_southern,
-        start=0,
-        extent=-180,
-        outline="black",
-        fill=SEASON_COLORS.get(OPPOSITE_SEASON.get(season), "white"),
-        tags="globe",
-    )
-
-    # Call the Date Line animation function
-    animate_date_line(240, 1)  # Start from 0 degrees and increment by 1 degree
-    animate_date_line(180, -1)  # Start from 180 degrees and decrement by 1 degree
+locationOptions = list(functions.imagePath.keys())
 
 # UI components for the Season and Location tab
-season_label = tk.Label(seasonLocationTab, text='Select a Season:')
-season_label.pack()
-season_var = tk.StringVar()
-season_menu = tk.OptionMenu(seasonLocationTab, season_var, *SEASON_COLORS.keys())
-season_menu.pack()
+seasonPrompt = tk.Label(userTab, text='Select a Season:')
+seasonPrompt.pack()
+selectedSeason = tk.StringVar()
+seasonMenu = tk.OptionMenu(userTab, selectedSeason, *NORTH_COLORS.keys())
+seasonMenu.pack()
 
-location_label = tk.Label(seasonLocationTab, text='Select a Major City:')
-location_label.pack()
-location_var = tk.StringVar()
-location_menu = tk.OptionMenu(seasonLocationTab, location_var, *location_choices)
-location_menu.pack()
+locationPrompt = tk.Label(userTab, text='Select a Major City:')
+locationPrompt.pack()
+selecedLocation = tk.StringVar()
+locationMenu = tk.OptionMenu(userTab, selecedLocation, *locationOptions)
+locationMenu.pack()
 
-open_image_button = tk.Button(
-    seasonLocationTab,
+openImageBtn = tk.Button(
+    userTab,
     text='Submit',
-    command=lambda: (functions.open_image(location_var.get(), result_label), render_globe(season_var.get()))
+    command=lambda: (functions.openImage(selecedLocation.get(), result), drawGlobe(selectedSeason.get()))
 )
-open_image_button.pack()
+openImageBtn.pack()
 
-result_label = tk.Label(seasonLocationTab, text='')
-result_label.pack()
-canvas = tk.Canvas(seasonLocationTab, width=300, height=300)
+result = tk.Label(userTab, text='')
+result.pack()
+canvas = tk.Canvas(userTab, width=300, height=300)
 canvas.pack()
 
-# UI components for the GPS Data tab
-display_gps_button = tk.Button(gpsDataTab, text="Display GPS Data", command=lambda: functions.display_gps_data(gps_data, result_label))
-display_gps_button.pack()
-result_label = tk.Label(gpsDataTab, text='')
-result_label.pack()
+def update_text():
+    text_to_display = functions.readFile(filePath="output.txt") 
+    label_text.set(text_to_display)  # Update the text variable associated with the label
 
-# Load GPS data from the file
-file_path = "output.txt"
-gps_data = functions.read_gps_data(file_path)
-
-gps_location_label = tk.Label(gpsDataTab, text='Select a Major City:')
-gps_location_label.pack()
-gps_location_var = tk.StringVar()
-gps_location_var.set(gps_data.get("Closest City"))
-gps_location_menu = tk.OptionMenu(gpsDataTab, gps_location_var, *location_choices)
-gps_location_menu.pack()
-
-open_gps_image_button = tk.Button(
+gpsImageBtn = tk.Button(
     gpsDataTab,
     text='Submit',
-    command=lambda: (functions.open_image(gps_location_var.get(), result_label))
+    command=lambda: (functions.openImage(functions.readFile(filePath="output.txt"), result), drawGlobe(selectedSeason.get()))
 )
-open_gps_image_button.pack()
+
+gpsImageBtn.pack()
+
+result = tk.Label(gpsDataTab, text='')
+result.pack()
+canvas = tk.Canvas(gpsDataTab, width=300, height=300)
+canvas.pack()
+
+# Create a label to display text
+label_text = tk.StringVar()
+label = tk.Label(gpsDataTab, textvariable=label_text, font=("Arial", 12))
+label.pack(pady=20)
+
+# Create a button to trigger the text update
+button = tk.Button(gpsDataTab, text="Display Text", command=update_text)
+button.pack()
+
+# Create the button to exit the application
+exitBtn = tk.Button(root, text="Exit Application", command=root.destroy)
+exitBtn.pack(side="bottom", pady=10)
 
 # Run the Tkinter main loop
 root.mainloop()
