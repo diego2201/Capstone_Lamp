@@ -1,6 +1,1 @@
-Latitude: 35.2220
-Longitude: -97.4395
-Date: 2023-10-21
-Time: 23:50:36
-Closest City: Norman, USA
-Closest Landmark: University of Oklahoma
+e

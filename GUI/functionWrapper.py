@@ -58,3 +58,9 @@ def readFile(filePath):
     print(locationDict.get(parsedData))
     return locationDict.get(parsedData)
 
+def writeFile(filePath, data):
+    # Open the file in append mode to add a new line
+    with open(filePath, "w") as file:
+        file.seek(0)
+        file.write(data)
+

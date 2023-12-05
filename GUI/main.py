@@ -80,14 +80,26 @@ seasonMenu.pack()
 
 locationPrompt = tk.Label(userTab, text='Select a Major City:')
 locationPrompt.pack()
-selecedLocation = tk.StringVar()
-locationMenu = tk.OptionMenu(userTab, selecedLocation, *locationOptions)
+selectedLocation = tk.StringVar()
+locationMenu = tk.OptionMenu(userTab, selectedLocation, *locationOptions)
 locationMenu.pack()
+
+# openImageBtn = tk.Button(
+#     userTab,
+#     text='Submit',
+#     command=lambda: (functions.openImage(selecedLocation.get(), result), drawGlobe(selectedSeason.get()))
+# )
+# openImageBtn.pack()
+
+def execute_multiple_commands():
+    functions.openImage(selectedLocation.get(), result)
+    drawGlobe(selectedSeason.get())
+    functions.writeFile("output.txt", 'e')
 
 openImageBtn = tk.Button(
     userTab,
     text='Submit',
-    command=lambda: (functions.openImage(selecedLocation.get(), result), drawGlobe(selectedSeason.get()))
+    command=execute_multiple_commands
 )
 openImageBtn.pack()
 
@@ -97,13 +109,13 @@ canvas = tk.Canvas(userTab, width=300, height=300)
 canvas.pack()
 
 def update_text():
-    text_to_display = functions.readFile(filePath="output.txt") 
+    text_to_display = functions.readFile(filePath="input.txt") 
     label_text.set(text_to_display)  # Update the text variable associated with the label
 
 gpsImageBtn = tk.Button(
     gpsDataTab,
     text='Submit',
-    command=lambda: (functions.openImage(functions.readFile(filePath="output.txt"), result), drawGlobe(selectedSeason.get()))
+    command=lambda: (functions.openImage(functions.readFile(filePath="input.txt"), result), drawGlobe(selectedSeason.get()))
 )
 
 gpsImageBtn.pack()
