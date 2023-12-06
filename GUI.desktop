@@ -3,6 +3,6 @@ Type=Application
 Encoding= UTF-8
 Name= GUI
 Exec= /usr/bin/python /home/capstone/Desktop/Capstone_Lamp/GUI/main.py
-Icon=
+Icon= /home/capstone/Desktop/Capstone_Lamp/globe.png
 StartupNotify=true
 Terminal=true
