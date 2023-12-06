@@ -3,8 +3,6 @@ import serial
 import time 
 
 inputFile = "/home/capstone/Desktop/Capstone_Lamp/GUI/input.txt"
-outputFile = "/home/capstone/Desktop/Capstone_Lamp/GUI/output.txt"
-
 locationFlag = ''
 
 # Define a dictionary of major cities/locations and their image paths
@@ -18,7 +16,8 @@ imagePath = {
     "Tokyo, Japan": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/Tokyo.jpeg',
     "Dubai, United Arab Emirates": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/Dubai.jpeg',
     "Paris, France": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/Pari.jpeg',
-    "Sydney, Australia": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/Syn.jpeg'
+    "Sydney, Australia": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/Syn.jpeg',
+    "Devon": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/devon.png'
 }
 
 locationDict = {
@@ -32,8 +31,9 @@ locationDict = {
     'h': "Dubai, United Arab Emirates",
     'i': "Paris, France",
     'j': "Sydney, Australia",
-    'k': 'University of Oklhoma, USA',
+    'k': "University of Oklahoma, USA",
     '!': 'GPS Error',
+    'y': "Devon",
     'z': 'z'
 }
 
@@ -62,27 +62,12 @@ def readFile():
 
     parsedData = ''.join(char for char in data if char.isprintable())
     print(locationDict.get(parsedData))
-    # writeFile('#', 1)
 
     return locationDict.get(parsedData)
-
-# def writeFile(data, clear):
-#     if clear == 0:
-#         print(data)
-#         print(getKey(data))
-        
-#         with open(outputFile, "w") as file:
-#             file.seek(0)
-#             file.write(getKey(data))
-#     elif clear == 1:
-#         with open(outputFile, "w") as file:
-#             file.seek(0)
-#             file.write((data))
 
 def getFlag():
     global locationFlag
 
-    # writeFile('#', 1)
     # Configure the serial connection
     port = "/dev/ttyACM0" 
     baudrate = 115200

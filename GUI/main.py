@@ -20,6 +20,25 @@ SOUTH_COLORS = {
     "Winter": "Summer",
 }
 
+# Create the main window
+root = tk.Tk()
+root.title('EDL GUI')
+
+# Create a Notebook to manage tabs
+notebook = ttk.Notebook(root)
+notebook.pack(fill='both', expand=True)
+
+# Create a tab for the Season and Location selector
+userTab = ttk.Frame(notebook)
+notebook.add(userTab, text='User Input')
+
+# Create a tab for the GPS data
+gpsDataTab = ttk.Frame(notebook)
+notebook.add(gpsDataTab, text='GPS Data')
+
+# Common components for both tabs
+locationOptions = list(functions.imagePath.keys())
+
 # Function to render a simple globe based on the selected season
 def drawGlobe(season):
     canvas.delete("globe")
@@ -52,25 +71,6 @@ def drawGlobe(season):
         tags="globe",
     )
 
-# Create the main window
-root = tk.Tk()
-root.title('EDL GUI')
-
-# Create a Notebook to manage tabs
-notebook = ttk.Notebook(root)
-notebook.pack(fill='both', expand=True)
-
-# Create a tab for the Season and Location selector
-userTab = ttk.Frame(notebook)
-notebook.add(userTab, text='User Input')
-
-# Create a tab for the GPS data
-gpsDataTab = ttk.Frame(notebook)
-notebook.add(gpsDataTab, text='GPS Data')
-
-# Common components for both tabs
-locationOptions = list(functions.imagePath.keys())
-
 # UI components for the Season and Location tab
 seasonPrompt = tk.Label(userTab, text='Select a Season:')
 seasonPrompt.pack()
@@ -85,10 +85,9 @@ locationMenu = tk.OptionMenu(userTab, selectedLocation, *locationOptions)
 locationMenu.pack()
 
 def imBtnCmds():
-    # functions.writeFile(selectedLocation.get(), 0)
+    drawGlobe(selectedSeason.get())
     functions.setFlag(selectedLocation.get(), 0)
     functions.openImage(selectedLocation.get(), result)
-    drawGlobe(selectedSeason.get())
 
 openImageBtn = tk.Button(
     userTab,
@@ -96,38 +95,48 @@ openImageBtn = tk.Button(
     command=imBtnCmds
 )
 openImageBtn.pack()
-
 result = tk.Label(userTab, text='')
 result.pack()
 canvas = tk.Canvas(userTab, width=300, height=300)
 canvas.pack()
 
-readPiBtn = tk.Button(
-    gpsDataTab,
-    text='Get Location Data',
-    command=lambda: (functions.getFlag())
-)
-readPiBtn.pack()
-
 def gpsBtnCmds():
+    functions.getFlag()
     functions.setFlag(selectedLocation.get(), 1)
-    functions.openImage(functions.readFile(), result)
-    drawGlobe(selectedSeason.get())
+    functions.openImage(functions.readFile(), gpsResult)
 
 gpsImageBtn = tk.Button(
     gpsDataTab,
-    text='Submit',
+    text='Get Location Data',
     command=gpsBtnCmds
 )
 gpsImageBtn.pack()
+gpsResult = tk.Label(gpsDataTab, text='')
+gpsResult.pack()
 
-result = tk.Label(gpsDataTab, text='')
-result.pack()
-canvas = tk.Canvas(gpsDataTab, width=300, height=300)
-canvas.pack()
+def presCmd():
+    functions.setFlag("Devon", 0)
+    functions.openImage("Devon", presResult)
+
+presBtn = tk.Button(
+    root, 
+    text="Presentation",
+    command=presCmd
+)
+presBtn.pack()
+presResult = tk.Label(root, text='')
+presResult.pack()
+
+def exit():
+    functions.setFlag(selectedLocation.get(), 1)
+    root.destroy()
 
 # Create the button to exit the application
-exitBtn = tk.Button(root, text="Exit Application", command=root.destroy)
+exitBtn = tk.Button(
+    root, 
+    text="Exit Application", 
+    command=exit
+)
 exitBtn.pack(side="bottom", pady=10)
 
 # Run the Tkinter main loop
