@@ -1,8 +1,11 @@
 import subprocess
 import serial
+import time 
 
 inputFile = "/home/capstone/Desktop/Capstone_Lamp/GUI/input.txt"
 outputFile = "/home/capstone/Desktop/Capstone_Lamp/GUI/output.txt"
+
+locationFlag = ''
 
 # Define a dictionary of major cities/locations and their image paths
 imagePath = {
@@ -30,7 +33,8 @@ locationDict = {
     'i': "Paris, France",
     'j': "Sydney, Australia",
     'k': 'University of Oklhoma, USA',
-    '!': 'GPS Error'
+    '!': 'GPS Error',
+    'z': 'z'
 }
 
 def getKey(target):
@@ -55,20 +59,30 @@ def openImage(location, result):
 def readFile():
     with open(inputFile, 'rb') as file:
         data = file.read().decode('utf-8', errors='ignore')
-        # Get the string corresponding to the character from the dictionary
+
     parsedData = ''.join(char for char in data if char.isprintable())
     print(locationDict.get(parsedData))
+    # writeFile('#', 1)
+
     return locationDict.get(parsedData)
 
-def writeFile(data):
-    print(data)
-    print(getKey(data))
-    
-    with open(outputFile, "w") as file:
-        file.seek(0)
-        file.write(getKey(data))
+# def writeFile(data, clear):
+#     if clear == 0:
+#         print(data)
+#         print(getKey(data))
+        
+#         with open(outputFile, "w") as file:
+#             file.seek(0)
+#             file.write(getKey(data))
+#     elif clear == 1:
+#         with open(outputFile, "w") as file:
+#             file.seek(0)
+#             file.write((data))
 
-def communicate():
+def getFlag():
+    global locationFlag
+
+    # writeFile('#', 1)
     # Configure the serial connection
     port = "/dev/ttyACM0" 
     baudrate = 115200
@@ -79,10 +93,30 @@ def communicate():
 
     # Read and write data until the transfer is complete
     data = serialCon.read(3)
-    print(data)
+    locationFlag = serialCon.read(1)
+    print("locflag:", data)
     deskFile.seek(0) #Overwrite the loction flag
     deskFile.write(data)
 
     # Close the files and serial connection
     deskFile.close()
     serialCon.close()
+
+def setFlag(loc, clear):
+    port = "/dev/ttyACM0"
+    baudrate = 115200
+    serialCon = serial.Serial(port, baudrate)
+
+    if clear == 0:
+        flag = getKey(loc)
+        print(flag)
+        serialCon.write((flag + ',').encode())
+
+        serialCon.close()
+        time.sleep(1)
+        serialCon.close()
+    elif clear == 1:
+        serialCon.write((locationDict.get('z') + ',').encode())
+        serialCon.close()
+        time.sleep(1)
+        serialCon.close()    

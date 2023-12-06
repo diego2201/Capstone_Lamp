@@ -85,7 +85,8 @@ locationMenu = tk.OptionMenu(userTab, selectedLocation, *locationOptions)
 locationMenu.pack()
 
 def imBtnCmds():
-    functions.writeFile(selectedLocation.get())
+    # functions.writeFile(selectedLocation.get(), 0)
+    functions.setFlag(selectedLocation.get(), 0)
     functions.openImage(selectedLocation.get(), result)
     drawGlobe(selectedSeason.get())
 
@@ -103,36 +104,27 @@ canvas.pack()
 
 readPiBtn = tk.Button(
     gpsDataTab,
-    text='Connect to Pi',
-    command=lambda: (functions.communicate())
+    text='Get Location Data',
+    command=lambda: (functions.getFlag())
 )
 readPiBtn.pack()
 
-def update_text():
-    text_to_display = functions.readFile() 
-    label_text.set(text_to_display)  # Update the text variable associated with the label
+def gpsBtnCmds():
+    functions.setFlag(selectedLocation.get(), 1)
+    functions.openImage(functions.readFile(), result)
+    drawGlobe(selectedSeason.get())
 
 gpsImageBtn = tk.Button(
     gpsDataTab,
     text='Submit',
-    command=lambda: (functions.openImage(functions.readFile(), result), drawGlobe(selectedSeason.get()))
+    command=gpsBtnCmds
 )
-
 gpsImageBtn.pack()
 
 result = tk.Label(gpsDataTab, text='')
 result.pack()
 canvas = tk.Canvas(gpsDataTab, width=300, height=300)
 canvas.pack()
-
-# Create a label to display text
-label_text = tk.StringVar()
-label = tk.Label(gpsDataTab, textvariable=label_text, font=("Arial", 12))
-label.pack(pady=20)
-
-# Create a button to trigger the text update
-button = tk.Button(gpsDataTab, text="Display Text", command=update_text)
-button.pack()
 
 # Create the button to exit the application
 exitBtn = tk.Button(root, text="Exit Application", command=root.destroy)
