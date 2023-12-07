@@ -12,6 +12,9 @@ Within the GUI folder there are two main python scripts, "main.py" and "function
 For the purposes of this project we use a few imports: <br />
 * tkinter
 * math
+* subprocess
+* serial
+* time 
 These two imports are incldued with the standard python libaruy installation available with the Raspberry Pi OS. <br />
 The main script creates and hosts the GUI components, while calling the functions from functionWrapper to implement any logic (such as serial connections, file reading, etc.). 
 The functionWrapper script hosts the actually functionality of the project. Here we creates functions to perfom vaious necessary logic needed to complete this project. For example file reading, establishing a serial connection with the master pico to read or set the location flag, and more. <br />
@@ -21,6 +24,13 @@ The functionWrapper script hosts the actually functionality of the project. Here
 * `gpsBtnCmd()` This method collects all of the necessary functions that should be ran when the user presses the button to display information based off of the GPS input  
 * `presCmd()` This method collects all of the necessary functions that should be ran when the user presses the button to display the presentation location information (Devon) 
 * `exit()` This method collects all of the necessary functions that should be ran when the user presses the button exit the application
+
+<strong>functionWrapper.py</strong>
+* `getKey(target)` Since python does not have a built in function to get the key for a dictionary based off of the value I implemented this function to do just that 
+* `openImage(location, result)` This function opens up the specified image as passed in by the main function (location). The result passed in is a tkinter object, this will display an error message if the image is not found, or unable to open  
+* `readFile()` This function reads in the location flag located in the specified txt file. This flag will determine what is displayed to the user 
+* `getFlag()` This function establishes a serial connection with the Pi Pico. The code in the pi pico prints out a statement, this print statement is then caught by the serial connection and is then stored into the specified txt file 
+* `setFlag()` This function establishes a serial connection with the Pi Pico. This code sends a char over the serial communication. The code in the pi pico reads this bit in and then stores it into the specified file 
 
 ## Microcontroller 
 Within the Microcontroller folder we contain all of the necessary files needed to run both of the Pi Picos. Since we are using a bluetooth connection we needed to implement two very important scripts one for the master pico and one for the slave (remote and control respectively). <br />
