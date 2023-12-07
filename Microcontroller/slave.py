@@ -7,6 +7,7 @@ _REMOTE_UUID = bluetooth.UUID(0x1848)
 _GENERIC = bluetooth.UUID(0x1800)
 _REMOTE_CHARACTERISTICS_UUID = bluetooth.UUID(0x2A6E)
 
+"""
 led = machine.Pin("LED", machine.Pin.OUT)
 led0 = machine.Pin(2, machine.Pin.OUT)
 led0.value(False)
@@ -30,6 +31,25 @@ led9 = machine.Pin(11, machine.Pin.OUT)
 led9.value(False)
 led10 = machine.Pin(12, machine.Pin.OUT)
 led10.value(False)
+"""
+
+led = machine.Pin("LED", machine.Pin.OUT)
+# Initialize LED pins in a list
+led_pins = [machine.Pin(2, machine.Pin.OUT),
+            machine.Pin(3, machine.Pin.OUT),
+            machine.Pin(4, machine.Pin.OUT),
+            machine.Pin(5, machine.Pin.OUT),
+            machine.Pin(6, machine.Pin.OUT),
+            machine.Pin(7, machine.Pin.OUT),
+            machine.Pin(8, machine.Pin.OUT),
+            machine.Pin(9, machine.Pin.OUT),
+            machine.Pin(10, machine.Pin.OUT),
+            machine.Pin(11, machine.Pin.OUT),
+            machine.Pin(12, machine.Pin.OUT)]
+
+# Initially turn off all LEDs
+for pin in led_pins:
+    pin.value(False)
 
 connected = False
 alive = False
@@ -70,6 +90,7 @@ async def blink():
 """
 Function to turn on corresponding LED based off of read in 
 location flag from master device 
+"""
 """
 def selectLocation(command):
     if command == b'a':
@@ -208,6 +229,30 @@ def selectLocation(command):
         print("GPS Error")
     else:
         print("No GPS data found")
+"""
+
+def selectLocation(command):
+    # Map commands to LED indices
+    commands_to_led = {
+        b'a': 0, b'b': 1, b'c': 2, b'd': 3, b'e': 4,
+        b'g': 5, b'h': 6, b'i': 7, b'j': 8, b'y': 9,
+        b'f': 10, b'!': -1  # Define the mapping of commands to LED indices
+    }
+
+    # Get the LED index from the command mapping
+    led_index = commands_to_led.get(command)
+    
+    if led_index is not None and led_index != -1:
+        # Turn off all LEDs
+        for pin in led_pins:
+            pin.value(False)
+        
+        # Turn on the corresponding LED
+        led_pins[led_index].value(True)
+    elif led_index == -1:
+        print("GPS Error")
+    else:
+        print("No GPS data found")
 
 """
 Function with error handling for failed connections, disconnections,
@@ -301,3 +346,5 @@ async def main():
 while True:
     asyncio.run(main())
                 
+
+

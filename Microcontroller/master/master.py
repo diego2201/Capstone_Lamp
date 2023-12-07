@@ -14,6 +14,14 @@ import time
 from sys import stdin
 import uselect
 
+from machine import I2C, Pin
+from pico_i2c_lcd import I2cLcd
+
+#Import for I2C connection with LCD Display
+i2c = I2C(1, sda=Pin(10), scl=Pin(11), freq=400000)
+I2C_ADDR = i2c.scan()[0]
+lcd = I2cLcd(i2c, I2C_ADDR, 2, 16)
+
 fileName = "data.txt"
 
 """
@@ -80,19 +88,15 @@ cities = {
 landmarks = {
     "Statue of Liberty, USA": (40.6892, -74.0445),
     "Golden Gate Bridge, USA": (37.8199, -122.4783),
-    "Great Wall of China, China": (40.4319, 116.5704),
     "Eiffel Tower, France": (48.858844, 2.294351),
     "Big Ben, United Kingdom": (51.5007, -0.1246),
     "Tokyo Tower, Japan": (35.6586, 139.7454),
-    "Christ the Redeemer, Brazil": (-22.9519, -43.2106),
     "Hagia Sophia, Turkey": (41.0082, 28.9784),
     "Burj Khalifa, United Arab Emirates": (25.276987, 55.296249),
     "Marina Bay Sands, Singapore": (1.2835, 103.8595),
     "Pyramids of Giza, Egypt": (29.9792, 31.1344),
     "Sydney Opera House, Australia": (-33.8568, 151.2153),
     "Taj Mahal, India": (27.1751, 78.0421),
-    "Petronas Twin Towers, Malaysia": (3.1588, 101.7141),
-    "Cristo Redentor, Portugal": (32.9225, -16.7721),
     "University of Oklahoma, USA": (20.6843, -88.5678)
 }
 
@@ -229,8 +233,191 @@ async def getNMEA():
                 closest_city = findCity(latitude, longitude, cities)
                 closest_landmark = findLandmark(latitude, longitude, landmarks)
                 
+                # Opens txt file to check what the LCD should display
+                with open("data.txt", "r") as file:
+                    fileData = file.read(1)
+                
+                #If the 'z' flag is set send GPS data, else user data 
+                if fileData == 'z':
+                    await update_lcd_data(formatted_time, latitude, longitude, closest_city, closest_landmark, locFlag)
+                else:
+                    await update_lcd_data(formatted_time, latitude, longitude, closest_city, closest_landmark, fileData)
+                
+                
                 print(locFlag)
         await asyncio.sleep_ms(1000)
+
+"""
+Function to update the LCD display based off of passed in data 
+"""    
+async def update_lcd_data(formatted_time, latitude, longitude, closest_city, closest_landmark, locFlag):
+    lcd.clear()
+    lcd.putstr("Time:")
+    lcd.move_to(0, 1)
+    lcd.putstr(str(formatted_time))
+    await asyncio.sleep(2)
+
+    # Conditional statement to display corresponding info based off of passed in flag
+    if locFlag == 'a':
+        lcd.clear()
+        lcd.putstr("Coords:")
+        lcd.move_to(0, 1)
+        lcd.putstr("{}, {}".format(40.71, -74.00))
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("City: NYC,USA")
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("Landmark:Statue of Liberty,USA")
+        await asyncio.sleep(2)
+    elif locFlag == 'b':
+        lcd.clear()
+        lcd.putstr("Coords:")
+        lcd.move_to(0, 1)
+        lcd.putstr("{}, {}".format(37.77, -122.41))
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("City:San Francisco,USA")
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("Landmark:Golden Gate Bridge")
+        await asyncio.sleep(2)
+    elif locFlag == 'c':
+        lcd.clear()
+        lcd.putstr("Coords:")
+        lcd.move_to(0, 1)
+        lcd.putstr("{}, {}".format(35.22, -97.43))
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("City: Norman, Oklahoma, USA")
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("Landmark: OU")
+        await asyncio.sleep(2)
+    elif locFlag == 'd':
+        lcd.clear()
+        lcd.putstr("Coords:")
+        lcd.move_to(0, 1)
+        lcd.putstr("{}, {}".format(34.05, -118.24))
+        await asyncio.sleep(2)        
+
+        lcd.clear()
+        lcd.putstr("City:Los Angeles, USA")
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("Landmark:Hollywood Sign")
+        await asyncio.sleep(2)
+    elif locFlag == 'e':
+        lcd.clear()
+        lcd.putstr("Coords:")
+        lcd.move_to(0, 1)
+        lcd.putstr("{}, {}".format(41.87, -87.62))
+        await asyncio.sleep(2)
+    
+        lcd.clear()
+        lcd.putstr("City:Chicago, USA")
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("Landmark:Millennium Park")
+        await asyncio.sleep(2)
+        
+        
+    elif locFlag == 'f':
+        lcd.clear()
+        lcd.putstr("Coords:")
+        lcd.move_to(0, 1)
+        lcd.putstr("{}, {}".format(51.50, -0.12))
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("City:London, UK")
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("Landmark:Big Ben")
+        await asyncio.sleep(2)
+    elif locFlag == 'g':
+        lcd.clear()
+        lcd.putstr("Coords:")
+        lcd.move_to(0, 1)
+        lcd.putstr("{}, {}".format(35.68, 139.75))
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("City:Tokyo, Japan")
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("Landmark:Tokyo Tower")
+        await asyncio.sleep(2)
+    elif locFlag == 'h':
+        lcd.clear()
+        lcd.putstr("Coords:")
+        lcd.move_to(0, 1)
+        lcd.putstr("{}, {}".format(25.27, 55.29))
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("City:Dubai, United Arab Emirates")
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("Landmark:Burj Khalifa")
+        await asyncio.sleep(2)
+    elif locFlag == 'i':
+        lcd.clear()
+        lcd.putstr("Coords:")
+        lcd.move_to(0, 1)
+        lcd.putstr("{}, {}".format(48.85, 2.35))
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("City: Paris, France")
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("Landmark: Eiffel Tower")
+        await asyncio.sleep(2)
+    elif locFlag == 'j':
+        lcd.clear()
+        lcd.putstr("Coords:")
+        lcd.move_to(0, 1)
+        lcd.putstr("{}, {}".format(-33.86, 151.20))
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("City: Sydney, Australia")
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("Landmark: Sydney Opera House")
+        await asyncio.sleep(2)
+    elif locFlag == 'k':
+        lcd.clear()
+        lcd.putstr("Coords:")
+        lcd.move_to(0, 1)
+        lcd.putstr("{}, {}".format(20.68, -88.56))
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("City: University of Oklahoma, USA")
+        await asyncio.sleep(2)
+        
+        lcd.clear()
+        lcd.putstr("Landmark: University Campus")
+        await asyncio.sleep(2)
+
+    lcd.clear()
+
+        
 
 """ 
 Return the unique id of the device as a string 
@@ -283,19 +470,19 @@ Function to write and notify slave device of new command
 """
 async def sendFlag():    
     global locFlag
-    # Reads in data from the text file to determine what type of flag to send 
+    
     while True:
         with open("data.txt", "r") as file:
-            fileData = file.read(1) #Reads in the single bit from the file 
+            fileData = file.read(1)
         if not connected:
             await asyncio.sleep_ms(1000)
             continue
         if connected:
-            if fileData == 'z': #If the flag is 'z', we send the gps data
+            if fileData == 'z':
                 locationData.write(locFlag)
                 locationData.notify(connection, locFlag)
             else:
-                locationData.write(fileData) #Else we send the data in the file 
+                locationData.write(fileData)
                 locationData.notify(connection, fileData) #Need this for control.py to sense
         await asyncio.sleep_ms(10)
             
@@ -316,11 +503,15 @@ async def announce():
                 connected = True
                 
                 while connected:
-                    await asyncio.sleep(1) #Keep task alive 
-        #Added error handling to attempt to reconenct if connection is lost 
+                    # You can add specific data handling or monitoring logic here
+                    # For instance, await asyncio.sleep(1) to keep the task alive
+                    
+                    # If you don't have any specific handling here, use a sleep statement
+                    await asyncio.sleep(1)
+                    
         except aioble.BLEDisconnectError as e:
             connected = False
-            #attempt reconnection/handle disconnection gracefully and exit
+            # Attempt reconnection or handle disconnection gracefully
             while not connected:
                 try:
                     async with await aioble.advertise(
@@ -364,3 +555,4 @@ async def main():
     await asyncio.gather(*tasks) # Gathers the task 
 
 asyncio.run(main()) # Runs the tasks 
+
