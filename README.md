@@ -47,6 +47,27 @@ For the purposes of this project we use a few imports: <br />
 * uselect
 All of these imports are supported by the micropython installation downloaded to both of the Pi Pico's. 
 
+<strong>master.py</strong>
+* `saveFile(data)` Function to write data to defined file 
+* `flag()` function to read in a char from a serial connection, and then stores into specified file by calling saveFile()
+* `calcDist(coord1, coord2)` Function to calculate distance between sets of coordinates using the Haversine formula
+* `findCity(latitude, longitude, cities)` Function to find the nearest city based off of the distance calculates using calcDist()
+* `findLandmark(latitude, longitude, landmarks)` Function to find the nearest landmark based off of the distance calculates using calcDist()
+* `convertCoords(coord, direction)` Function to properly convert the coords read in from the NMEA sentence to the standard formatting 
+* `getNMEA()` Function to establish connection to GPS receiver and constantly read in data in the form of a NMEA sentence. Then parses this sentence and stores to the appropriate variable, calling the respective functions to help collect accurate information 
+* `uid()` Function to create a unique string id for the master pico
+* `sendFlag()` Function to send flag over bluetooth to slave 
+* `announce()` Function to advertise that this device is in pairing mode and waiting to establish a connection
+* `blink()` Function to blink the onboard LED to help ease troubleshooting. Fast blinks means that it has not been connected to anything else, slow blinks means that it has established a connection
+* `main()` Gathers all of the async functions, stores them into a list and then runs them continually
+
+<strong>slave.py</strong>
+* `findBase()` Continually scans for all bluetooth devices available near by. Checks to see if it matches the preset name, if it does we establisha connection to this device 
+* `blink()` Function to blink the onboard LED to help ease troubleshooting. Fast blinks means that it has not been connected to anything else, slow blinks means that it has established a connection
+* `selectLocation()` Contains various conditional statements. Turns on the respective LED based off of what flag has been read in from the master device 
+* `communicate()` Function that contains a lot of the logic to handle any errors with bluetooth connection. Such as any errors with disconnections, no connections, etc. Also receives data from the master once a connection has been made 
+* `main()` Gathers all of the async functions, stores them into a list and then runs them continually
+
 ##
 
 ## Bluetooth

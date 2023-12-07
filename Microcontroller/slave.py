@@ -15,7 +15,7 @@ alive = False
 """
 Function to scan available bt devices and connect to specified device name
 """
-async def find_remote():
+async def findBase():
     async with aioble.scan(5000, interval_us=30000, window_us=30000, active=True) as scanner:
         async for result in scanner:
             #Searchs for "BasePi"
@@ -89,7 +89,7 @@ async def communicate():
     connected = False
 
     # Find a remote device
-    device = await find_remote()
+    device = await findBase()
 
     if not device:
         print("No remote found")

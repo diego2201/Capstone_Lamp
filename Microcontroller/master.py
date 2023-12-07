@@ -99,7 +99,7 @@ landmarks = {
 """
 Function to calculate the distance between two sets of coordinates using Haversine formula
 """
-def calculate_distance(coord1, coord2):
+def calcDist(coord1, coord2):
     lat1, lon1 = coord1
     lat2, lon2 = coord2
     R = 6371  # Radius of the Earth in kilometers
@@ -120,7 +120,7 @@ def calculate_distance(coord1, coord2):
 """
 Function to find the closest city
 """
-def find_closest_city(latitude, longitude, cities):
+def findCity(latitude, longitude, cities):
     global locFlag
     
     # Conditional statement to send error flag 
@@ -134,7 +134,7 @@ def find_closest_city(latitude, longitude, cities):
 
     for city, coordinates in cities.items():
         city_latitude, city_longitude, flag = coordinates  # Unpacks the coordinates including the flag
-        distance = calculate_distance((latitude, longitude), (city_latitude, city_longitude))
+        distance = calcDist((latitude, longitude), (city_latitude, city_longitude))
         if distance < closest_distance:
             closest_city = city
             locFlag = flag
@@ -146,7 +146,7 @@ def find_closest_city(latitude, longitude, cities):
 """
 Function to find the closest landmark
 """
-def find_closest_landmark(latitude, longitude, landmarks):
+def findLandmark(latitude, longitude, landmarks):
     if (latitude == 0.0) and (longitude == 0.0):
         closest_landmark = None
         return closest_landmark
@@ -155,7 +155,7 @@ def find_closest_landmark(latitude, longitude, landmarks):
     closest_distance_landmark = float("inf")
 
     for landmark, coordinates in landmarks.items():
-        distance = calculate_distance((latitude, longitude), coordinates)
+        distance = calcDist((latitude, longitude), coordinates)
         if distance < closest_distance_landmark:
             closest_landmark = landmark
             closest_distance_landmark = distance
@@ -184,7 +184,7 @@ def convertCoords(coord, direction):
 """
 Function to read in GPS data from NMEA 
 """
-async def handle_gps_data():
+async def getNMEA():
     # Calls in all the global variables needed to store the information and continually update 
     global latitude, longitude, formatted_date, formatted_time, cardDirection, cardDirection2, closest_city, closest_landmark
     
@@ -226,14 +226,16 @@ async def handle_gps_data():
                         except ValueError:
                             pass
 
-                closest_city = find_closest_city(latitude, longitude, cities)
-                closest_landmark = find_closest_landmark(latitude, longitude, landmarks)
+                closest_city = findCity(latitude, longitude, cities)
+                closest_landmark = findLandmark(latitude, longitude, landmarks)
                 
                 print(locFlag)
         await asyncio.sleep_ms(1000)
 
+""" 
+Return the unique id of the device as a string 
+"""
 def uid():
-    """ Return the unique id of the device as a string """
     return "{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}".format(
         *machine.unique_id())
 
@@ -279,7 +281,7 @@ connected = False
 """
 Function to write and notify slave device of new command 
 """
-async def remote_task():    
+async def sendFlag():    
     global locFlag
     
     while True:
@@ -300,7 +302,7 @@ async def remote_task():
 """
 Function to show possible slave devices that it is available 
 """ 
-async def peripheral_task():
+async def announce():
     global connected, connection
     while True:
         connected = False
@@ -316,7 +318,7 @@ async def peripheral_task():
 """
 Function to blink onboard LED to help debug 
 """
-async def blink_task():
+async def blink():
     toggle = True
     while True:
         led.value(toggle)
@@ -333,11 +335,11 @@ Main function to gather all functions that should be continually running
 """
 async def main():
     tasks = [
-        asyncio.create_task(peripheral_task()),
-        asyncio.create_task(blink_task()),
+        asyncio.create_task(announce()),
+        asyncio.create_task(blink()),
         asyncio.create_task(flag()),
-        asyncio.create_task(remote_task()),
-        asyncio.create_task(handle_gps_data()),
+        asyncio.create_task(sendFlag()),
+        asyncio.create_task(getNMEA()),
     ]
     await asyncio.gather(*tasks) # Gathers the task 
 
