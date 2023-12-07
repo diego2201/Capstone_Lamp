@@ -70,7 +70,7 @@ For the purposes of this project we use a few imports: <br />
 * uselect
 All of these imports are supported by the micropython installation downloaded to both of the Pi Pico's. 
 
-<strong>master.py</strong>
+### Master Pico
 * `saveFile(data)` Function to write data to defined file 
 * `flag()` function to read in a char from a serial connection, and then stores into specified file by calling saveFile()
 * `calcDist(coord1, coord2)` Function to calculate distance between sets of coordinates using the Haversine formula
@@ -83,8 +83,14 @@ All of these imports are supported by the micropython installation downloaded to
 * `announce()` Function to advertise that this device is in pairing mode and waiting to establish a connection
 * `blink()` Function to blink the onboard LED to help ease troubleshooting. Fast blinks means that it has not been connected to anything else, slow blinks means that it has established a connection
 * `main()` Gathers all of the async functions, stores them into a list and then runs them continually
+* `displayLCD(formatted_time, latitude, longitude, closest_city, closest_landmark, locFlag)` Function to display appropriate data to LCD display
 
-<strong>slave.py</strong>
+<strong>lcd_api.py</strong>
+Dependency to get I2C display to work, imported to the master script
+<strong>pico_i2c_lcd.py</strong>
+Dependency to get I2C display to work, imported to the master script
+
+### Slave Pico
 * `findBase()` Continually scans for all bluetooth devices available near by. Checks to see if it matches the preset name, if it does we establisha connection to this device 
 * `blink()` Function to blink the onboard LED to help ease troubleshooting. Fast blinks means that it has not been connected to anything else, slow blinks means that it has established a connection
 * `selectLocation()` Contains various conditional statements. Turns on the respective LED based off of what flag has been read in from the master device 
