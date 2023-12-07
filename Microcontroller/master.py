@@ -283,19 +283,19 @@ Function to write and notify slave device of new command
 """
 async def sendFlag():    
     global locFlag
-    
+    # Reads in data from the text file to determine what type of flag to send 
     while True:
         with open("data.txt", "r") as file:
-            fileData = file.read(1)
+            fileData = file.read(1) #Reads in the single bit from the file 
         if not connected:
             await asyncio.sleep_ms(1000)
             continue
         if connected:
-            if fileData == 'z':
+            if fileData == 'z': #If the flag is 'z', we send the gps data
                 locationData.write(locFlag)
                 locationData.notify(connection, locFlag)
             else:
-                locationData.write(fileData)
+                locationData.write(fileData) #Else we send the data in the file 
                 locationData.notify(connection, fileData) #Need this for control.py to sense
         await asyncio.sleep_ms(10)
             
@@ -306,14 +306,34 @@ async def announce():
     global connected, connection
     while True:
         connected = False
-        async with await aioble.advertise(
-            ADV_INTERVAL_MS, 
-            name="BasePi", 
-            appearance=_BLE_APPEARANCE_GENERIC_REMOTE_CONTROL, 
-            services=[_ENV_SENSE_TEMP_UUID]
-        ) as connection:
-            connected = True
-            await connection.disconnected()
+        try:
+            async with await aioble.advertise(
+                ADV_INTERVAL_MS, 
+                name="BasePi", 
+                appearance=_BLE_APPEARANCE_GENERIC_REMOTE_CONTROL, 
+                services=[_ENV_SENSE_TEMP_UUID]
+            ) as connection:
+                connected = True
+                
+                while connected:
+                    await asyncio.sleep(1) #Keep task alive 
+        #Added error handling to attempt to reconenct if connection is lost 
+        except aioble.BLEDisconnectError as e:
+            connected = False
+            #attempt reconnection/handle disconnection gracefully and exit
+            while not connected:
+                try:
+                    async with await aioble.advertise(
+                        ADV_INTERVAL_MS, 
+                        name="BasePi", 
+                        appearance=_BLE_APPEARANCE_GENERIC_REMOTE_CONTROL, 
+                        services=[_ENV_SENSE_TEMP_UUID]
+                    ) as connection:
+                        connected = True
+                except aioble.BLEDisconnectError as e:
+                    await asyncio.sleep(1)  # Add a delay before reconnection attempt
+        await asyncio.sleep(1)  # Add a delay before retrying the connection
+
         
 """
 Function to blink onboard LED to help debug 

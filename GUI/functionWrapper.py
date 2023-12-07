@@ -1,6 +1,8 @@
 import subprocess
 import serial
 import time 
+import io
+from PIL import Image
 
 # File to store the location flag read in from the Raspberry Pi Pico
 inputFile = "/home/capstone/Desktop/Capstone_Lamp/GUI/input.txt"
@@ -18,7 +20,7 @@ imagePath = {
     "Dubai, United Arab Emirates": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/Dubai.jpeg',
     "Paris, France": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/Pari.jpeg',
     "Sydney, Australia": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/Syn.jpeg',
-    "Devon": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/devon.png'
+    "Devon": '/home/capstone/Desktop/Capstone_Lamp/GUI/Images/devon'
 }
 
 # Defines a dictionary to correlate cities with their corresponding flags
@@ -52,17 +54,31 @@ def getKey(target):
 Function to open an image based on the passed in selected location
 """
 def openImage(location, result):
-    
     # Gets the image path for the selected location from the imagePath dict
     path = imagePath.get(location)
 
-    # Displays the result label if there has been an error
+    # Checks if there is a valid image path returned from the dict
     if path:
-        # Opens the image using terminal commands 
-        subprocess.run(['open', path])
-    else:
-        result.config(text='Image not found.') #Error message if the image is not found 
+        try:
+            # If there is, initialize it as a new Image object
+            img = Image.open(path)
+            
+            # Resizes the image to a specified size (400x400) using Antialiasing for better quality
+            img = img.resize((400, 400), Image.ANTIALIAS)
+            
+            # Converts the image to bytes and stores it in memory using BytesIO
+            imgByte = io.BytesIO()
+            img.save(imgByte, format='JPEG') # Reformats the image 
+            imgByte.seek(0)
 
+            # Calls the 'feh' image viewer subprocess and displays the image using its standard input
+            subprocess.run(['feh', '-'], input=imgByte.read(), check=True)
+        except subprocess.CalledProcessError as e:
+            # If an error occurs during subprocess execution, display an error message
+            result.config(text=f"Error opening image: {e}")
+    else:
+        # Display an error message if the image path is not found in the dictionary
+        result.config(text='Image not found.')
 """
 Function to read in the input.txt file
 """

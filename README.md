@@ -1,10 +1,15 @@
 # Spiers NT Capstone Project - Fall 2023
 The project is to design a spherical globe lamp that accurately depicts the interaction between the planet Earth and the Sun. The lamp should provide enough light to reasonably illuminate one engineer's desk, and creatively indicate the position of the lamp itself in relation to major countries, cities, and landmarks. The globe will need to rotate in two directions to accurately simulate the motion of the Earth and I would like the light source (Sun) to remain fixed such that the dateline illustrating the rising and the setting of the Sun is the primary light output of the lamp. The lamp is not allowed to connect to the internet and it must be powered by a standard 110VAC receptacle (no batteries).
 
-## Software Environment 
-<strong>OS</strong>: The GUI should be running on Raspberry Pi OS (Legacy), being a port of Debian Bullseye. After testing the GUI will not work with other more recent versions of Raspberry Pi OS. 
+# Software Environment 
+## Raspberry Pi 4 (SBC): 
+The GUI should be running on Raspberry Pi OS (Legacy), being a port of Debian Bullseye. After testing the GUI will not work with other more recent versions of Raspberry Pi OS. 
     In switching to this OS version you lose very minimial functionalities, such as being able to set the icon of the ".desktop" file. <br /> <br />
+The only dependency that we need to download to get the GUI to work is the following: 
+`sudo apt-get install feh` 
+This command will install the feh package, necessary to help resize and format the images that will be displayed on the touchscreen
 
+### Touchscreen: 
 In order to setup the software environment we will need to run a few terminal commands. The following is to get the touchscreen working 
 ```
 git clone https://github.com/waveshare/LCD-show.git
@@ -13,13 +18,16 @@ chmod +x LCD35-show
 ./LCD35-show
 ```
 This will restart your device. You should now see the OS displayed on the touchscreen. <br />
+
+### Error Handling 
 You may also run into the case where you cannot run the GUI from the start up script `GUI.desktop'. Becuase of this you may need to run the folllowing commands. 
 ```
 cd /usr/bin
 sudo cp lxterminal xterm
 ```
 
-<strong>Raspberry Pi Pico</strong>: These Picos both interally maintain their respective and correct versions of the code. What does that mean? Essentially that there is no need to worry about the version of the code for these two. What we do have to watch out for is the defined "PORT" string for the master Pi Pico. We need to assure that the assigned string for this port is "/dev/ttyACM0". In order to check this we can simply open up a new Thonney window and check the bottom right of the screen. However, there may be the chance where that is not the case. The SBC may assign the port to "/dev/ttyACM1", in this instance we can simply unplug the master pico, wait a few seconds, then plug back in. <br />
+## Raspberry Pi Pico (Microcontrollers): 
+These Picos both interally maintain their respective and correct versions of the code. What does that mean? Essentially that there is no need to worry about the version of the code for these two. What we do have to watch out for is the defined "PORT" string for the master Pi Pico. We need to assure that the assigned string for this port is "/dev/ttyACM0". In order to check this we can simply open up a new Thonney window and check the bottom right of the screen. However, there may be the chance where that is not the case. The SBC may assign the port to "/dev/ttyACM1", in this instance we can simply unplug the master pico, wait a few seconds, then plug back in. <br />
 
 # Code Explanation 
 ## GUI 
