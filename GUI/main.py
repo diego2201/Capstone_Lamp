@@ -2,10 +2,10 @@ import tkinter as tk
 from tkinter import ttk
 import math
 
-# Import the functions module
+# Imports the functions module 
 import functionWrapper as functions
 
-# Define season colors
+# Defines season colors
 NORTH_COLORS = {
     "Spring": "green",
     "Summer": "yellow",
@@ -20,7 +20,29 @@ SOUTH_COLORS = {
     "Winter": "Summer",
 }
 
+# Creates the main window
+root = tk.Tk()
+root.title('EDL GUI')
+
+# Creates a Notebook to manage separate tabs
+notebook = ttk.Notebook(root)
+notebook.pack(fill='both', expand=True)
+
+# Creates a tab for user input 
+userTab = ttk.Frame(notebook)
+notebook.add(userTab, text='User Input')
+
+# Creates a tab for GPS data input
+gpsDataTab = ttk.Frame(notebook)
+notebook.add(gpsDataTab, text='GPS Data')
+
+# Gets a list of the available options based off of defined dict in functions 
+locationOptions = list(functions.imagePath.keys())
+
 # Function to render a simple globe based on the selected season
+"""
+Function to render the globe based on the selected season 
+"""
 def drawGlobe(season):
     canvas.delete("globe")
     radius = 100
@@ -28,6 +50,7 @@ def drawGlobe(season):
     northHemi = radius
     southHemi = radius
 
+    # Creates the northern hemisphere 
     canvas.create_arc(
         centerX - northHemi,
         centerY - northHemi,
@@ -40,6 +63,7 @@ def drawGlobe(season):
         tags="globe",
     )
 
+    # Creates the southern hemisphere
     canvas.create_arc(
         centerX - southHemi,
         centerY - southHemi,
@@ -52,91 +76,88 @@ def drawGlobe(season):
         tags="globe",
     )
 
-# Create the main window
-root = tk.Tk()
-root.title('EDL GUI')
-
-# Create a Notebook to manage tabs
-notebook = ttk.Notebook(root)
-notebook.pack(fill='both', expand=True)
-
-# Create a tab for the Season and Location selector
-userTab = ttk.Frame(notebook)
-notebook.add(userTab, text='User Input')
-
-# Create a tab for the GPS data
-gpsDataTab = ttk.Frame(notebook)
-notebook.add(gpsDataTab, text='GPS Data')
-
-# Common components for both tabs
-locationOptions = list(functions.imagePath.keys())
-
-# UI components for the Season and Location tab
+# GUI components for the user input tab
 seasonPrompt = tk.Label(userTab, text='Select a Season:')
 seasonPrompt.pack()
-selectedSeason = tk.StringVar()
-seasonMenu = tk.OptionMenu(userTab, selectedSeason, *NORTH_COLORS.keys())
+selectedSeason = tk.StringVar() # Stores the selected season 
+seasonMenu = tk.OptionMenu(userTab, selectedSeason, *NORTH_COLORS.keys()) # Displays the option to user 
 seasonMenu.pack()
 
+# GUI component for the location input tab 
 locationPrompt = tk.Label(userTab, text='Select a Major City:')
 locationPrompt.pack()
 selectedLocation = tk.StringVar()
 locationMenu = tk.OptionMenu(userTab, selectedLocation, *locationOptions)
 locationMenu.pack()
 
-# openImageBtn = tk.Button(
-#     userTab,
-#     text='Submit',
-#     command=lambda: (functions.openImage(selecedLocation.get(), result), drawGlobe(selectedSeason.get()))
-# )
-# openImageBtn.pack()
-
-def execute_multiple_commands():
-    functions.openImage(selectedLocation.get(), result)
+"""
+Function to store all of the commands that should be run when the submit button is pressed 
+"""
+def imBtnCmds():
     drawGlobe(selectedSeason.get())
-    functions.writeFile("output.txt", 'e')
+    functions.setFlag(selectedLocation.get(), 0)
+    functions.openImage(selectedLocation.get(), result)
 
+# Button to submit user input 
 openImageBtn = tk.Button(
     userTab,
     text='Submit',
-    command=execute_multiple_commands
+    command=imBtnCmds
 )
 openImageBtn.pack()
-
 result = tk.Label(userTab, text='')
 result.pack()
 canvas = tk.Canvas(userTab, width=300, height=300)
 canvas.pack()
 
-def update_text():
-    text_to_display = functions.readFile(filePath="input.txt") 
-    label_text.set(text_to_display)  # Update the text variable associated with the label
+"""
+Function to store all of the commands that should be run when the submit button is pressed 
+for the GPS
+"""
+def gpsBtnCmds():
+    functions.getFlag()
+    functions.setFlag(selectedLocation.get(), 1)
+    functions.openImage(functions.readFile(), gpsResult)
 
 gpsImageBtn = tk.Button(
     gpsDataTab,
-    text='Submit',
-    command=lambda: (functions.openImage(functions.readFile(filePath="input.txt"), result), drawGlobe(selectedSeason.get()))
+    text='Get Location Data',
+    command=gpsBtnCmds
 )
-
 gpsImageBtn.pack()
+gpsResult = tk.Label(gpsDataTab, text='')
+gpsResult.pack()
 
-result = tk.Label(gpsDataTab, text='')
-result.pack()
-canvas = tk.Canvas(gpsDataTab, width=300, height=300)
-canvas.pack()
+"""
+Function to store all of the commands that should be run for pres mode 
+"""
+def presCmd():
+    functions.setFlag("Devon", 0)
+    functions.openImage("Devon", presResult)
 
-# Create a label to display text
-label_text = tk.StringVar()
-label = tk.Label(gpsDataTab, textvariable=label_text, font=("Arial", 12))
-label.pack(pady=20)
+presBtn = tk.Button(
+    root, 
+    text="Presentation",
+    command=presCmd
+)
+presBtn.pack()
+presResult = tk.Label(root, text='')
+presResult.pack()
 
-# Create a button to trigger the text update
-button = tk.Button(gpsDataTab, text="Display Text", command=update_text)
-button.pack()
+"""
+Function to store all of the commands that should be run to exit application
+"""
+def exit():
+    functions.setFlag(selectedLocation.get(), 1)
+    root.destroy()
 
-# Create the button to exit the application
-exitBtn = tk.Button(root, text="Exit Application", command=root.destroy)
+# Creates the button to exit the application
+exitBtn = tk.Button(
+    root, 
+    text="Exit Application", 
+    command=exit
+)
 exitBtn.pack(side="bottom", pady=10)
 
-# Run the Tkinter main loop
+# Runs the GUI main loop
 root.mainloop()

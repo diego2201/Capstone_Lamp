@@ -10,10 +10,41 @@ import utime
 import math
 from time import sleep
 
+import time
+from sys import stdin
+import uselect
+
+fileName = "data.txt"
+
+"""
+Function to save data to specified file 
+"""
+async def saveFile(data):
+    with open(fileName, "w") as file:
+        file.write(data + "\n")
+
+"""
+Function to read file from serial input calls the saveFile function
+to save 
+"""    
+async def flag():  
+    while True:
+        selectResult = uselect.select([stdin], [], [], 0)
+        val = ''
+        while selectResult[0]:
+            inputChar = stdin.read(1)
+            if inputChar != ',':
+                val += inputChar
+            else:
+                await saveFile(val)
+                val =''
+            selectResult = uselect.select([stdin], [], [], 0)
+        await asyncio.sleep(0.1)
+
 # Defines UART pins and baud rate
 uart = machine.UART(0, baudrate=9600, tx=machine.Pin(0), rx=machine.Pin(1))
 
-# Define variables where we will store our NMEA data
+# Defines global variables where we will store our NMEA data
 latitude = 0.0
 longitude = 0.0
 date = ""
@@ -23,6 +54,8 @@ formatted_time = ""
 
 cardDirection = ""
 cardDirection2 = ""
+
+# Flag that stores our 
 locFlag = 0
 
 closest_city = None
@@ -36,7 +69,7 @@ cities = {
     "Los Angeles, USA": (34.0522, -118.2437, 'd'),
     "Chicago, USA": (41.8781, -87.6298, 'e'),
     "London, United Kingdom": (51.5074, -0.1278, 'f'),
-    "Tokyo, Japan": (35.682839, 139.759455, 'f'),
+    "Tokyo, Japan": (35.682839, 139.759455, 'g'),
     "Dubai, United Arab Emirates": (25.276987, 55.296249, 'h'),
     "Paris, France": (48.8566, 2.3522, 'i'),
     "Sydney, Australia": (-33.8651, 151.2099, 'j'),
@@ -63,7 +96,9 @@ landmarks = {
     "University of Oklahoma, USA": (20.6843, -88.5678)
 }
 
-# Function to calculate the distance between two sets of coordinates using Haversine formula
+"""
+Function to calculate the distance between two sets of coordinates using Haversine formula
+"""
 def calculate_distance(coord1, coord2):
     lat1, lon1 = coord1
     lat2, lon2 = coord2
@@ -82,10 +117,13 @@ def calculate_distance(coord1, coord2):
 
     return distance
 
-# Function to find the closest city
+"""
+Function to find the closest city
+"""
 def find_closest_city(latitude, longitude, cities):
     global locFlag
     
+    # Conditional statement to send error flag 
     if (latitude == 0.0) and (longitude == 0.0):
         locFlag = '!'
         closest_city = None
@@ -95,7 +133,7 @@ def find_closest_city(latitude, longitude, cities):
     closest_distance = float("inf")
 
     for city, coordinates in cities.items():
-        city_latitude, city_longitude, flag = coordinates  # Unpack the coordinates including the flag
+        city_latitude, city_longitude, flag = coordinates  # Unpacks the coordinates including the flag
         distance = calculate_distance((latitude, longitude), (city_latitude, city_longitude))
         if distance < closest_distance:
             closest_city = city
@@ -105,7 +143,9 @@ def find_closest_city(latitude, longitude, cities):
     return closest_city
 
 
-# Function to find the closest landmark
+"""
+Function to find the closest landmark
+"""
 def find_closest_landmark(latitude, longitude, landmarks):
     if (latitude == 0.0) and (longitude == 0.0):
         closest_landmark = None
@@ -122,6 +162,10 @@ def find_closest_landmark(latitude, longitude, landmarks):
 
     return closest_landmark
 
+"""
+Function to convert the coord from NMEA formatting to 
+traditional mm.ss
+"""
 def convertCoords(coord, direction):
     degree = int(coord // 100)
     minutes = coord % 100
@@ -137,11 +181,14 @@ def convertCoords(coord, direction):
     
     return finalCoord
 
+"""
+Function to read in GPS data from NMEA 
+"""
 async def handle_gps_data():
-    print('test')
+    # Calls in all the global variables needed to store the information and continually update 
     global latitude, longitude, formatted_date, formatted_time, cardDirection, cardDirection2, closest_city, closest_landmark
     
-    # Define your GPS data processing logic here
+    # While loop to continually read from GPS receiver 
     while True:
         data = uart.readline()
         
@@ -154,11 +201,12 @@ async def handle_gps_data():
 
             # Checks if the sentence starts with '$GP'
             if data.startswith('$GP'):
-                parts = data.split(',')
+                parts = data.split(',') # Splits the NMEA sentence into a list 
 
                 if parts[0] == '$GPGGA':
                     if len(parts) >= 10:
                         try:     
+                            # Stores the respective variables from the list
                             latitude = convertCoords(float(parts[2]), parts[3])
                             longitude = convertCoords(float(parts[4]), parts[5])
                             
@@ -169,9 +217,10 @@ async def handle_gps_data():
                 elif parts[0] == '$GPRMC':
                     if len(parts) >= 10:
                         try:
+                            # Had to read in from a different NMEA sentence because 
                             date = parts[9]
                             time = parts[1]
-
+                        
                             formatted_date = "20{2}-{1}-{0}".format(date[:2], date[2:4], date[4:6])
                             formatted_time = "{0}:{1}:{2}".format(time[:2], time[2:4], time[4:6])
                         except ValueError:
@@ -179,17 +228,8 @@ async def handle_gps_data():
 
                 closest_city = find_closest_city(latitude, longitude, cities)
                 closest_landmark = find_closest_landmark(latitude, longitude, landmarks)
-
-                print("Latitude: {0:.6f}".format(latitude))
-                print("Longitude: {0:.6f}".format(longitude))
-                print("City Flag: {}".format(locFlag))
-                print("Date: {}".format(formatted_date))
-                print("Time: {}".format(formatted_time))
-                print("Closest City: {}".format(closest_city))
-                print("Closest Landmark: {}".format(closest_landmark))
-                print("Cardinal Direction: {}".format(cardDirection))
-                print("Cardinal Direction: {}".format(cardDirection2))
-                print("")
+                
+                print(locFlag)
         await asyncio.sleep_ms(1000)
 
 def uid():
@@ -219,7 +259,7 @@ device_info = aioble.Service(_ENV_SENSE_UUID)
 
 connection = None
 
-# Create characteristics for device info
+# Creates the characteristics for device info
 aioble.Characteristic(device_info, bluetooth.UUID(MANUFACTURER_ID), read=True, initial="BasePi")
 aioble.Characteristic(device_info, bluetooth.UUID(MODEL_NUMBER_ID), read=True, initial="1.0")
 aioble.Characteristic(device_info, bluetooth.UUID(SERIAL_NUMBER_ID), read=True, initial=uid())
@@ -232,33 +272,35 @@ locationData = aioble.Characteristic(
     remote_service, _BUTTON_UUID, read=True, notify=True
 )
 
-print('registering services')
 aioble.register_services(remote_service, device_info)
 
 connected = False
 
-async def remote_task():
-    """ Send the event to the connected device """
+"""
+Function to write and notify slave device of new command 
+"""
+async def remote_task():    
+    global locFlag
     
-    global formatted_time, closest_city, locFlag
-
     while True:
+        with open("data.txt", "r") as file:
+            fileData = file.read(1)
         if not connected:
-            print('not connected')
             await asyncio.sleep_ms(1000)
             continue
         if connected:
-            #print(f"BT connected: {connection}")
-            locationData.write(locFlag)
-            locationData.notify(connection, locFlag)
-        else:
-            print('connected')
+            if fileData == 'z':
+                locationData.write(locFlag)
+                locationData.notify(connection, locFlag)
+            else:
+                locationData.write(fileData)
+                locationData.notify(connection, fileData) #Need this for control.py to sense
         await asyncio.sleep_ms(10)
             
-# Serially wait for connections. Don't advertise while a central is
-# connected.    
+"""
+Function to show possible slave devices that it is available 
+""" 
 async def peripheral_task():
-    print('peripheral task started')
     global connected, connection
     while True:
         connected = False
@@ -268,15 +310,13 @@ async def peripheral_task():
             appearance=_BLE_APPEARANCE_GENERIC_REMOTE_CONTROL, 
             services=[_ENV_SENSE_TEMP_UUID]
         ) as connection:
-            print("Connection from", connection.device)
             connected = True
-            print(f"connected: {connected}")
             await connection.disconnected()
-            print(f'disconnected')
         
-
+"""
+Function to blink onboard LED to help debug 
+"""
 async def blink_task():
-    print('blink task started')
     toggle = True
     while True:
         led.value(toggle)
@@ -288,14 +328,17 @@ async def blink_task():
             blink = 250
         await asyncio.sleep_ms(blink)
         
+"""
+Main function to gather all functions that should be continually running 
+"""
 async def main():
     tasks = [
         asyncio.create_task(peripheral_task()),
         asyncio.create_task(blink_task()),
+        asyncio.create_task(flag()),
         asyncio.create_task(remote_task()),
         asyncio.create_task(handle_gps_data()),
     ]
-    await asyncio.gather(*tasks)
+    await asyncio.gather(*tasks) # Gathers the task 
 
-asyncio.run(main())
-
+asyncio.run(main()) # Runs the tasks 
