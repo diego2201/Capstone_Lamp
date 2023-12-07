@@ -3,7 +3,19 @@ The project is to design a spherical globe lamp that accurately depicts the inte
 
 ## Software Environment 
 OS: The GUI should be running on Raspberry Pi OS (Legacy), being a port of Debian Bullseye. After testing the GUI will not work with other more recent versions of Raspberry Pi OS. 
-    In switching to this OS version you lose very minimial functionalities, such as being able to set the icon of the ".desktop" file. <br />
+    In switching to this OS version you lose very minimial functionalities, such as being able to set the icon of the ".desktop" file. <br /> <br />
+
+In order to setup the software environment we will need to run a few terminal commands. 
+<strong>Touchscreen</strong>
+```
+git clone https://github.com/waveshare/LCD-show.git
+cd LCD-show/
+chmod +x LCD35-show
+./LCD35-show
+```
+
+This will restart your device. You should now see the OS displayed on the touchscreen. 
+
 Raspberry Pi Pico: These Picos both interally maintain their respective and correct versions of the code. What does that mean? Essentially that there is no need to worry about the version of the code for these two. What we do have to watch out for is the defined "PORT" string for the master Pi Pico. We need to assure that the assigned string for this port is "/dev/ttyACM0". In order to check this we can simply open up a new Thonney window and check the bottom right of the screen. However, there may be the chance where that is not the case. The SBC may assign the port to "/dev/ttyACM1", in this instance we can simply unplug the master pico, wait a few seconds, then plug back in. <br />
 
 # Code Explanation 
@@ -73,3 +85,5 @@ All of these imports are supported by the micropython installation downloaded to
 ## Bluetooth
 https://github.com/jnross/Bluetility <br />
 -To help see the low power Bluetooth devices 
+
+https://core-electronics.com.au/guides/small-screens-raspberry-pi/ 
